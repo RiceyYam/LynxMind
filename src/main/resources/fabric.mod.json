@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "lynxmind",
+  "version": "${version}",
+  "name": "LynxMind",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/lynxmind/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.ricey_yam.lynxmind.client.LynxMindDataGenerator"
+    ],
+    "client": [
+      "org.ricey_yam.lynxmind.client.LynxMindClient"
+    ],
+    "main": [
+      "org.ricey_yam.lynxmind.LynxMind"
+    ]
+  },
+  "mixins": [
+    "lynxmind.mixins.json",
+    {
+      "config": "lynxmind.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
