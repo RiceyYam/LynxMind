@@ -1,3 +1,5 @@
+# 注：该MOD目前在开发中，大部分功能暂时缺失！
+
 # LynxMind
 
 LynxMind 是一个基于 Fabric 框架开发的 Minecraft 模组，专注于提供智能化的游戏辅助功能，提升玩家的游戏体验。
