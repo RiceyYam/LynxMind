@@ -8,7 +8,6 @@ import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.baritone.BCollectionTask;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
-import org.ricey_yam.lynxmind.client.task.baritone.BTaskType;
 
 import java.util.List;
 

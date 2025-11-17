@@ -1,6 +1,7 @@
 package org.ricey_yam.lynxmind.client.utils.game_ext.slot;
 
 import net.minecraft.screen.slot.Slot;
+import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
 
 /// LSlot ID Range: -999
 ///
@@ -10,7 +11,7 @@ public class CursorSlot extends LSlot {
     public static final CursorSlot SLOT = new CursorSlot();
 
     public CursorSlot() {
-        super(CURSOR_SLOT_INDEX,false);
+        super(CURSOR_SLOT_INDEX,ComplexContainerType.NONE);
         this.slotType = LSlotType.CURSOR;
     }
 
@@ -20,7 +21,7 @@ public class CursorSlot extends LSlot {
     }
 
     @Override
-    public LSlot toLSlot(Slot slot,boolean inComplexContainer) {
+    public LSlot toLSlot(Slot slot, ComplexContainerType complexContainerType) {
         return SLOT;
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import org.ricey_yam.lynxmind.client.utils.game_ext.ClientUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
 import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemUtils;
 
 /// 格子工具类
@@ -39,12 +40,12 @@ public class SlotHelper {
     }
 
     /// 找到包含指定容器的LYNX SLOT
-    public static LSlot getLSlotByItemID(String itemId,boolean inComplexContainer){
+    public static LSlot getLSlotByItemID(String itemId,ComplexContainerType complexContainerType){
         var player = MinecraftClient.getInstance().player;
         if(player == null) return null;
         var screenHandler = player.currentScreenHandler;
-        var playerItemsInner = ItemUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_INNER,inComplexContainer);
-        var playerItemsHotBar = ItemUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_HOTBAR,inComplexContainer);
+        var playerItemsInner = ItemUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_INNER,complexContainerType);
+        var playerItemsHotBar = ItemUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_HOTBAR,complexContainerType);
         playerItemsHotBar.addAll(playerItemsInner);
         for(var slotItem : playerItemsHotBar){
             if(slotItem.getItem_stack().getItem_name().equals(itemId)){
@@ -77,16 +78,16 @@ public class SlotHelper {
         return getSlotItem(slotId).isEmpty();
     }
 
-    public static LSlot getLSlotInstanceByType(int slotId,boolean isComplexContainer, LSlotType actionType){
+    public static LSlot getLSlotInstanceByType(int slotId, ComplexContainerType complexContainerType, LSlotType actionType){
         switch (actionType){
             case INVENTORY_HOTBAR -> {
-                return new InventoryHotBarSlot(slotId,isComplexContainer);
+                return new InventoryHotBarSlot(slotId,complexContainerType);
             }
             case INVENTORY_INNER ->  {
-                return new InventoryInnerSlot(slotId,isComplexContainer);
+                return new InventoryInnerSlot(slotId,complexContainerType);
             }
             case INVENTORY_EQUIPMENT -> {
-                return new InventoryEquipmentSlot(slotId,isComplexContainer);
+                return new InventoryEquipmentSlot(slotId,complexContainerType);
             }
         }
         return null;
@@ -109,5 +110,19 @@ public class SlotHelper {
             }
         }
         return false;
+    }
+
+    public static int getOffsetFromLSlotToSlot(ComplexContainerType complexContainerType){
+        var result = 0;
+        switch (complexContainerType){
+            case PLAYER_INFO ->  result = 9;
+            case CRAFTING_TABLE ->  result = 10;
+            case CHEST ->  result = 27;
+            case CHEST_BIG ->  result = 54;
+            case FURNACE -> result = 3;
+            case SMITHING_TABLE -> result = 4;
+            case BREWING_STAND ->  result = 5;
+        }
+        return result;
     }
 }

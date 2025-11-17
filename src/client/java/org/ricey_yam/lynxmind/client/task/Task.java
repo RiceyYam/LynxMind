@@ -15,6 +15,7 @@ public abstract class Task<T> {
     public abstract void stop(String cancelReason);
     public enum TaskState{
         IDLE,
-        FINISHED
+        FINISHED,
+        FAILED
     }
 }

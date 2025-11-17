@@ -2,11 +2,13 @@ package org.ricey_yam.lynxmind.client.utils.game_ext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemUtils;
 
 import java.util.*;
@@ -48,31 +50,39 @@ public class BlockUtils {
         return null;
     }
 
-    public static BlockPos findCraftingTablePlacePoint(LivingEntity livingEntity) {
-        var playerPos = livingEntity.getBlockPos();
-        for (int dx = -4; dx <= 4; dx++) {
-            for (int dy = 0; dy <= 4; dy++) {
-                for (int dz = -4; dz <= 4; dz++) {
+    /// 寻找工作台的放置点
+    public static BlockPos findCraftingTablePlacePoint(LivingEntity livingEntity, int range) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null || client.world == null) return null;
+
+        BlockPos playerPos = livingEntity.getBlockPos();
+        BlockPos bestPos = null;
+
+        for (int dx = -range; dx <= range; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                for (int dz = -range; dz <= range; dz++) {
                     BlockPos pos = playerPos.add(dx, dy, dz);
-                    if (pos.getSquaredDistance(playerPos) > 16) {
+                    World world = client.world;
+
+                    if (!world.isInBuildLimit(pos)) {
                         continue;
                     }
-                    if (Objects.requireNonNull(getBlockState(pos)).isAir() && isSolid(pos.down())) {
-                        return pos;
+
+                    if (!isInRange(playerPos, pos, range)) {
+                        continue;
                     }
+
+                    BlockState targetState = world.getBlockState(pos);
+                    if(Blocks.CRAFTING_TABLE.getDefaultState().canPlaceAt(world, pos)) return pos;
                 }
             }
         }
         return null;
     }
 
-    /// 是否为固体方块
-    public static boolean isSolid(BlockPos pos) {
-        var world = MinecraftClient.getInstance().world;
-        if (world != null) {
-            return Objects.requireNonNull(getBlockState(pos)).isSolidBlock(world, pos);
-        }
-        return false;
+    /// 校验位置是否在 range 范围内（欧氏距离）
+    private static boolean isInRange(BlockPos center, BlockPos target, int range) {
+        return center.getSquaredDistance(target) <= range * range;
     }
 
     /// 获取方块状态

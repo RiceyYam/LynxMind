@@ -1,6 +1,8 @@
 package org.ricey_yam.lynxmind.client.utils.game_ext;
 
 import baritone.api.utils.Rotation;
+import baritone.api.utils.VecUtils;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
@@ -22,9 +24,13 @@ public class TransformUtils {
     }
 
     /// 计算旋转角度
-    public static Rotation calcRotationFromVec3d(BlockPos from, BlockPos to) {
-        var vec3dForm = new  Vec3d(from.getX(), from.getY(), from.getZ());
-        var vec3dTo = new Vec3d(to.getX(), to.getY(), to.getZ());
+    public static Rotation calcLookRotationFromVec3d(PlayerEntity player, BlockPos to) {
+        var vec3dForm = player.getEyePos();
+        var vec3dTo = VecUtils.getBlockPosCenter(to);
+        return getRotation(vec3dForm, vec3dTo);
+    }
+
+    private static Rotation getRotation(Vec3d vec3dForm, Vec3d vec3dTo) {
         var diff = vec3dTo.subtract(vec3dForm);
         var distance = diff.length();
         var xzDistance = Math.sqrt(diff.x * diff.x + diff.z * diff.z);
@@ -38,7 +44,26 @@ public class TransformUtils {
     /// 是否玩家看向某个位置
     public static boolean isLookingAt(BlockPos pos) {
         var baritone = BaritoneManager.getClientBaritone();
-        if(baritone == null) return false;
-        return baritone.getPlayerContext().isLookingAt(pos);
+        if (baritone == null) return false;
+
+        var ctx = baritone.getPlayerContext();
+
+        var player = ctx.player();
+
+        Vec3d eyePosition = player.getEyePos();
+
+        Vec3d targetCenter = VecUtils.getBlockPosCenter(pos);
+
+        Rotation idealRotation = getRotation(eyePosition, targetCenter);
+
+        Rotation currentRotation = ctx.playerRotations();
+
+        double yawDiff = Math.abs(normalizeYaw180(idealRotation.getYaw() - currentRotation.getYaw()));
+        double pitchDiff = Math.abs(idealRotation.getPitch() - currentRotation.getPitch());
+
+        double totalDiff = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
+
+        return totalDiff < 4D;
     }
+
 }

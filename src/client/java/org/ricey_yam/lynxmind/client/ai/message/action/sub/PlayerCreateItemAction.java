@@ -1,5 +1,6 @@
 package org.ricey_yam.lynxmind.client.ai.message.action.sub;
 
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 import org.ricey_yam.lynxmind.client.LynxMindClient;
@@ -9,12 +10,20 @@ import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.baritone.BCraftingTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class PlayerCreateItemAction extends Action {
     private List<ItemStackLite> to_craft;
+
+    @Expose(deserialize = false)
+    private List<ItemStackLite> craft_failed = new ArrayList<>();
+
+    @Expose(deserialize = false)
+    private List<ItemStackLite> craft_success = new ArrayList<>();
+
     public PlayerCreateItemAction(List<ItemStackLite> to_craft) {
         this.to_craft = to_craft;
     }

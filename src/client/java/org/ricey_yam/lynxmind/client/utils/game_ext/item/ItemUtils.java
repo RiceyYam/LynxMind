@@ -3,10 +3,11 @@ package org.ricey_yam.lynxmind.client.utils.game_ext.item;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import org.ricey_yam.lynxmind.client.ai.message.game_info.ui.SlotItemStack;
+import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.LSlotType;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.SlotHelper;
 
@@ -22,7 +23,7 @@ public class ItemUtils {
     }
 
     /// 获取玩家背包全部物品
-    public static List<SlotItemStack> getClientPlayerInventoryItems(LSlotType part, boolean inComplexContainer){
+    public static List<SlotItemStack> getClientPlayerInventoryItems(LSlotType part, ComplexContainerType complexContainerType){
         var result = new ArrayList<SlotItemStack>();
         var player = MinecraftClient.getInstance().player;
         if (player != null) {
@@ -33,12 +34,12 @@ public class ItemUtils {
             switch (part){
                 case INVENTORY_INNER:
                     sectionOfInventory.addAll(inventory.main);
-                    end = 26;
+                    start = 9;
+                    end = 36;
                     break;
                 case INVENTORY_HOTBAR:
                     sectionOfInventory.addAll(inventory.main);
-                    start = 27;
-                    end = 35;
+                    end = 9;
                     break;
                 case INVENTORY_EQUIPMENT:
                     sectionOfInventory.addAll(inventory.armor);
@@ -50,13 +51,32 @@ public class ItemUtils {
                 var j = 0;
                 for (int i = 0; i < end - start; i++) {
                     var itemStack = sectionOfInventory.get(start + i);
-                    var inventoryInnerSlot = SlotHelper.getLSlotInstanceByType(i,inComplexContainer,part);
-                    var slotItemStack = new SlotItemStack(inventoryInnerSlot, itemStack);
+                    var inventoryInnerLSlot = SlotHelper.getLSlotInstanceByType(i,complexContainerType,part);
+                    var slotItemStack = new SlotItemStack(inventoryInnerLSlot, itemStack);
                     result.add(slotItemStack);
                 }
             }
         }
         return result;
+    }
+    public static DefaultedList<ItemStack> getClientPlayerInventoryItems(){
+        var player = MinecraftClient.getInstance().player;
+        if (player != null) {
+            return player.getInventory().main;
+        }
+        else return null;
+    }
+
+    public static boolean hasItem(String itemId){
+        var items = getClientPlayerInventoryItems();
+        if (items != null) {
+            for(var item : items){
+                if(ItemUtils.getItemName(item).equals(itemId)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

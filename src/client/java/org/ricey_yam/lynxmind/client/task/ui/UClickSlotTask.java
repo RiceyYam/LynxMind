@@ -1,7 +1,6 @@
 package org.ricey_yam.lynxmind.client.task.ui;
 
 import net.minecraft.screen.slot.SlotActionType;
-import org.ricey_yam.lynxmind.client.task.Task;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.LSlot;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.SlotHelper;
 
