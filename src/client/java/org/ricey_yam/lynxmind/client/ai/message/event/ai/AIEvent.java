@@ -7,8 +7,7 @@ import org.ricey_yam.lynxmind.client.ai.message.event.Event;
 
 @Getter
 @Setter
-public class AIEvent extends Event {
+public abstract class AIEvent extends Event {
     protected AIEventType type = AIEventType.NONE;
-    public void onReceive() {
-    }
+    public abstract void onReceive();
 }

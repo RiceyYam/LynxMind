@@ -17,8 +17,10 @@ import org.ricey_yam.lynxmind.client.ai.LynxJsonHandler;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCraftingAction;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerBaritoneTaskStop;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.ui.SlotItemStack;
+import org.ricey_yam.lynxmind.client.utils.game_ext.block.BlockUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.entity.EntityUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.SlotItemStack;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.ui.*;
@@ -120,7 +122,7 @@ public class BCraftingTask extends BTask {
                         var nearestLootEntity = EntityUtils.findNearestEntity(player, ItemEntity.class,15);
                         if(nearestLootEntity != null && nearestLootEntity.getStack().getCount() > 0) {
                             var targetStack = nearestLootEntity.getStack();
-                            var isNeededItem = ItemUtils.getItemName(targetStack).equals("minecraft:crafting_table");
+                            var isNeededItem = ItemUtils.getItemID(targetStack).equals("minecraft:crafting_table");
                             if(isNeededItem) {
                                 craftingTableLootEntity = nearestLootEntity;
                                 return;
@@ -414,7 +416,7 @@ public class BCraftingTask extends BTask {
         private SlotItemStack getMatchedSlotItemStack(ItemStack targetItemStack, List<SlotItemStack> obtainedItem) {
             for(var item : obtainedItem) {
                 if(item == null) continue;
-                if(item.getItem_stack().getItem_name().equals(ItemUtils.getItemName(targetItemStack))) {
+                if(item.getItem_stack().getItem_name().equals(ItemUtils.getItemID(targetItemStack))) {
                     return item;
                 }
             }
@@ -453,7 +455,6 @@ public class BCraftingTask extends BTask {
             var currentCraftingTableLSlot = SlotHelper.getLSlotByItemID("minecraft:crafting_table", ComplexContainerType.PLAYER_INFO);
             if(currentCraftingTableLSlot == null) {
                 this.state = TaskState.FAILED;
-                System.out.println("CurrentCraftingTableLSlot is null!");
                 return;
             }
             /// 判断当前工作台是否处于快捷栏

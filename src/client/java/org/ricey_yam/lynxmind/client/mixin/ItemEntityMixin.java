@@ -32,7 +32,7 @@ public class ItemEntityMixin {
             ItemStack itemStack = itemEntity.getStack();
             Item item = itemStack.getItem();
             int i = itemStack.getCount();
-            var name = ItemUtils.getItemName(itemStack);
+            var name = ItemUtils.getItemID(itemStack);
             if (pickupDelay == 0 && (itemEntity.getOwner() == null || itemEntity.getOwner().equals(player.getUuid())) && player.getInventory().insertStack(itemStack)) {
                 player.sendPickup(itemEntity, i);
 

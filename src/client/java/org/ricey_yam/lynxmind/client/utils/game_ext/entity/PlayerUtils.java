@@ -11,10 +11,10 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.ui.SlotItemStack;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.SlotItemStack;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
-import org.ricey_yam.lynxmind.client.utils.game_ext.BlockUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.block.BlockUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.ClientUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.TransformUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
@@ -65,7 +65,7 @@ public class PlayerUtils {
     }
     public static String getSelectedBlockID() {
         var selectedBlock = getSelectedBlock();
-        var id = BlockUtils.getBlockName(selectedBlock);
+        var id = BlockUtils.getBlockID(selectedBlock);
         return id;
     }
     public static BlockPos getSelectedBlockPos() {
@@ -143,7 +143,7 @@ public class PlayerUtils {
         var items = getClientPlayerInventoryItems();
         if (items != null) {
             for(var item : items){
-                if(ItemUtils.getItemName(item).equals(itemId)){
+                if(ItemUtils.getItemID(item).equals(itemId)){
                     return true;
                 }
             }
@@ -186,7 +186,7 @@ public class PlayerUtils {
                     }
                 }
             }
-            return bestTool != null ? ItemUtils.getItemName(bestTool) : null;
+            return bestTool != null ? ItemUtils.getItemID(bestTool) : null;
         }
         else return null;
     }
@@ -203,7 +203,7 @@ public class PlayerUtils {
                     maxMiningDamage = item.getDamage();
                 }
             }
-            return bestWeapon != null ? ItemUtils.getItemName(bestWeapon) : null;
+            return bestWeapon != null ? ItemUtils.getItemID(bestWeapon) : null;
         }
         else return null;
     }

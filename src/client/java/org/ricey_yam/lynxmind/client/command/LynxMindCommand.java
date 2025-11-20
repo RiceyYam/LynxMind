@@ -13,7 +13,7 @@ import org.ricey_yam.lynxmind.client.ai.AIServiceManager;
 import org.ricey_yam.lynxmind.client.ai.ChatManager;
 import org.ricey_yam.lynxmind.client.ai.LynxJsonHandler;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCraftingAction;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.config.AIServiceConfig;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCollectBlockAction;
@@ -219,7 +219,7 @@ public class LynxMindCommand {
     static class DebugExecutor{
         private static int getStatus(CommandContext<ServerCommandSource> context){
             try{
-                var playerStatusHeartBeatEvent = new PlayerStatusHeartBeatEvent(Objects.requireNonNull(context.getSource().getPlayer()));
+                var playerStatusHeartBeatEvent = new PlayerStatusHeartBeatEvent();
                 var serialized = LynxJsonHandler.serialize(playerStatusHeartBeatEvent);
                 LynxMindClient.sendModMessage("当前玩家状态\n" + serialized);
             }

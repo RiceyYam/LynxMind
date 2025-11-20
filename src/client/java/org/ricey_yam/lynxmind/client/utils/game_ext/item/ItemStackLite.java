@@ -1,9 +1,8 @@
-package org.ricey_yam.lynxmind.client.ai.message.game_info.item;
+package org.ricey_yam.lynxmind.client.utils.game_ext.item;
 
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.item.ItemStack;
-import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemUtils;
 
 @Getter
 @Setter
@@ -13,7 +12,7 @@ public class ItemStackLite {
 
     public ItemStackLite(ItemStack itemStack){
         this.count = itemStack.getCount();
-        this.item_name = ItemUtils.getItemName(itemStack);
+        this.item_name = ItemUtils.getItemID(itemStack);
     }
     public ItemStackLite(int count, String item_name){
         this.count = count;

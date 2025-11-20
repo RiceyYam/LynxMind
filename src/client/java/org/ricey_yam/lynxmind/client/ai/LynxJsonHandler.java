@@ -3,7 +3,6 @@ package org.ricey_yam.lynxmind.client.ai;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.ricey_yam.lynxmind.client.ai.message.action.Action;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCollectBlockAction;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCraftingAction;
 import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerMoveAction;
@@ -18,7 +17,6 @@ import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerRemoveTas
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerStatusHeartBeatEvent;
 import org.ricey_yam.lynxmind.client.utils.format.JsonExt;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -130,18 +128,9 @@ public class LynxJsonHandler {
         if(t instanceof AIControlEvent lynxAIEvent){
             var jsonObj = gson.fromJson(specialJson,JsonObject.class);
             var jsonExt = JsonExt.of(jsonObj);
-            var jsonActions = jsonExt.getAsElementList("actions");
-            List<Action> actions = new ArrayList<>();
-            if(jsonActions != null && !jsonActions.isEmpty()){
-                for (int i = 0; i < jsonActions.size(); i++) {
-                    var jsonAction = jsonActions.get(i);
-                    var actionJson = gson.toJson(jsonAction);
-                    if(actionJson != null && !actionJson.isEmpty()){
-                        actions.add(deserialize(actionJson));
-                    }
-                }
-            }
-            lynxAIEvent.setActions(actions);
+            var jsonAction = jsonExt.getElement("action");
+            var actionJson = gson.toJson(jsonAction);
+            lynxAIEvent.setAction(deserialize(actionJson));
             return (T)lynxAIEvent;
         }
         return t;

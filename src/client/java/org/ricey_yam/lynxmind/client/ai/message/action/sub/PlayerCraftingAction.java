@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ricey_yam.lynxmind.client.LynxMindClient;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.baritone.BCraftingTask;

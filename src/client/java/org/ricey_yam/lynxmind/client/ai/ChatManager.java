@@ -75,8 +75,7 @@ public class ChatManager {
     /// 发送状态信息给AI
     public static CompletableFuture<String> sendStatusJsonToAIAndReceiveReply(){
         var baritone = BaritoneManager.getClientBaritone();
-        var player = baritone.getPlayerContext().player();
-        var playerStatusHeartBeatEvent = new PlayerStatusHeartBeatEvent(player);
+        var playerStatusHeartBeatEvent = new PlayerStatusHeartBeatEvent();
         var serialized = LynxJsonHandler.serialize(playerStatusHeartBeatEvent);
         return AIServiceManager.sendAndReceiveReplyAsync(serialized);
     }

@@ -8,18 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.BlockPos;
 import org.ricey_yam.lynxmind.client.baritone.status.sub.*;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.baritone.BCollectionTask;
 import org.ricey_yam.lynxmind.client.baritone.status.BStatus;
 import org.ricey_yam.lynxmind.client.task.baritone.BCraftingTask;
 import org.ricey_yam.lynxmind.client.task.baritone.BTaskType;
-import org.ricey_yam.lynxmind.client.utils.game_ext.BlockUtils;
-import org.ricey_yam.lynxmind.client.utils.game_ext.ClientUtils;
-import org.ricey_yam.lynxmind.client.utils.game_ext.TransformUtils;
-
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -63,7 +57,6 @@ public class BaritoneManager {
                             break;
                         }
                     }
-
                     var miningNeededBlock = bCT.getCollectingState() == BCollectionTask.CollectingState.MINING_BLOCK && isNeededBlock;
                     var miningUnneededBlock = bCT.getCollectingState() == BCollectionTask.CollectingState.MINING_BLOCK && !isNeededBlock;
                     if(miningNeededBlock){

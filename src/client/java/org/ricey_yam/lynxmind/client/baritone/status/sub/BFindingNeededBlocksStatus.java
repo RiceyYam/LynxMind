@@ -3,7 +3,7 @@ package org.ricey_yam.lynxmind.client.baritone.status.sub;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.util.math.BlockPos;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.status.BStatus;
 import org.ricey_yam.lynxmind.client.baritone.status.BStatusType;
 

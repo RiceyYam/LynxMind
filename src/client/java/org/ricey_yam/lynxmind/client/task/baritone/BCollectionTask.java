@@ -18,14 +18,14 @@ import org.ricey_yam.lynxmind.client.ai.ChatManager;
 import org.ricey_yam.lynxmind.client.ai.LynxJsonHandler;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerBaritoneTaskStop;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.item.ItemStackLite;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.ui.UClickSlotTask;
 import org.ricey_yam.lynxmind.client.task.ui.UTask;
-import org.ricey_yam.lynxmind.client.utils.game_ext.BlockUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.block.BlockUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.ClientUtils;
-import org.ricey_yam.lynxmind.client.utils.game_ext.EntityUtils;
+import org.ricey_yam.lynxmind.client.utils.game_ext.entity.EntityUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.TransformUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.entity.PlayerUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
@@ -136,7 +136,7 @@ public class BCollectionTask extends BTask {
                             var isNeededItem = false;
                             for (int i = neededItem.size() - 1; i >= 0; i--) {
                                 var nItem = neededItem.get(i);
-                                if (ItemTagHelper.isFuzzyMatch(nItem.getItem_name(),ItemUtils.getItemName(targetStack)) && nItem.getCount() >= 0) {
+                                if (ItemTagHelper.isFuzzyMatch(nItem.getItem_name(),ItemUtils.getItemID(targetStack)) && nItem.getCount() >= 0) {
                                     isNeededItem = true;
                                     break;
                                 }
@@ -152,11 +152,9 @@ public class BCollectionTask extends BTask {
                         }
                     }
 
-                    //System.out.println("moving update");
                     cancelMining();
                     if (isPlayerReachBlock(currentTargetBlockPos) || isPlayerNearBlock(currentTargetBlockPos)) {
                         collectingState = CollectingState.MINING_BLOCK;
-                        System.out.println("change to mining block");
                     }
                     else if(!baritone.getCustomGoalProcess().isActive()){
                         if(re_pathTicks <= 100){
@@ -167,7 +165,6 @@ public class BCollectionTask extends BTask {
                             blackList.add(currentTargetBlockPos);
                             re_pathTicks = 0;
                             currentTargetBlockPos = null;
-                            System.out.println("黑名单!!!");
                         }
                     }
                 }
@@ -217,8 +214,6 @@ public class BCollectionTask extends BTask {
 
                 /// 挖掘方块
                 case MINING_BLOCK -> {
-                    System.out.println("mine update");
-
                     /// 判断方块状态是否正常
                     var targetBlock = BlockUtils.getTargetBlock(currentTargetBlockPos);
                     if(targetBlock == null || targetBlock.getDefaultState().isAir()) {
@@ -234,7 +229,6 @@ public class BCollectionTask extends BTask {
 
                     if (!isPlayerNearBlock(miningBlockPos)) {
                         this.collectingState = CollectingState.MOVING_TO_BLOCK;
-                        System.out.println("change to moving");
                     }
 
                     if (currentTargetBlockPos != null) {
@@ -366,7 +360,6 @@ public class BCollectionTask extends BTask {
                     miningBlockPos = PlayerUtils.getSelectedBlockPos();
                     var selectedBlockState = selectedBlock.getDefaultState();
                     if(selectedBlockState != null && (holdItemStack == null || !holdItemStack.isSuitableFor(selectedBlockState)) && options.attackKey.isPressed()){
-                        System.out.println("switching to tool");
                         switchToBestTool(miningBlockPos);
                     }
                 }

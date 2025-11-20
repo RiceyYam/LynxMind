@@ -1,4 +1,4 @@
-package org.ricey_yam.lynxmind.client.utils.game_ext;
+package org.ricey_yam.lynxmind.client.utils.game_ext.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -14,8 +14,8 @@ import java.util.*;
 
 public class BlockUtils {
     /// 搜索最近的方块的位置
-    public static BlockPos findNearestBlock(LivingEntity livingEntity, List<String> targetBlockNameList, int radius,List<BlockPos> blackList) {
-        if(livingEntity == null || targetBlockNameList == null || targetBlockNameList.isEmpty()) return null;
+    public static BlockPos findNearestBlock(LivingEntity livingEntity, List<String> targetBlockIDList, int radius, List<BlockPos> blackList) {
+        if(livingEntity == null || targetBlockIDList == null || targetBlockIDList.isEmpty()) return null;
         var startPos = livingEntity.getBlockPos();
         var world = livingEntity.getEntityWorld();
         Queue<BlockPos> queue = new LinkedList<>();
@@ -28,8 +28,8 @@ public class BlockUtils {
 
         while (!queue.isEmpty()) {
             BlockPos currentPos = queue.poll();
-            var blockName = getBlockName(currentPos);
-            for (String targetName : targetBlockNameList) {
+            var blockName = getBlockID(currentPos);
+            for (String targetName : targetBlockIDList) {
                 if (targetName.equals(blockName) && !blackList.contains(currentPos)) {
                     return currentPos;
                 }
@@ -48,8 +48,26 @@ public class BlockUtils {
 
         return null;
     }
-    public static BlockPos findNearestBlock(LivingEntity livingEntity, List<String> targetBlockNameList, int radius){
-        return findNearestBlock(livingEntity,targetBlockNameList,radius,List.of());
+    public static BlockPos findNearestBlock(LivingEntity livingEntity, List<String> targetBlockIDList, int radius){
+        return findNearestBlock(livingEntity, targetBlockIDList,radius,List.of());
+    }
+
+    /// 扫描附近的全部方块
+    public static List<BlockLite> scanAllBlocks(LivingEntity livingEntity,List<String> targetBlockIDList, int radius){
+        var entityPos = livingEntity.getBlockPos();
+        var result = new ArrayList<BlockLite>();
+        for (int x = -radius; x < radius; x++) {
+            for (int y = -radius; y < radius; y++) {
+                for (int z = -radius; z < radius; z++) {
+                    var pos = entityPos.add(x, y, z);
+                    var blockState = BlockUtils.getBlockState(pos);
+                    if(targetBlockIDList.contains(BlockUtils.getBlockID(pos))){
+                        result.add(new BlockLite(pos));
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /// 寻找工作台的放置点
@@ -103,7 +121,7 @@ public class BlockUtils {
     }
 
     /// 获取方块ID
-    public static String getBlockName(BlockPos pos) {
+    public static String getBlockID(BlockPos pos) {
         var world = MinecraftClient.getInstance().world;
         if (world == null || pos == null) {
             return null;
@@ -112,7 +130,7 @@ public class BlockUtils {
         Identifier blockId = Registries.BLOCK.getId(block);
         return blockId.toString();
     }
-    public static String getBlockName(Block block) {
+    public static String getBlockID(Block block) {
         if(block == null) return null;
         Identifier blockId = Registries.BLOCK.getId(block);
         return blockId.toString();

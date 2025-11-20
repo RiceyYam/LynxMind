@@ -43,14 +43,12 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
 ````json
 {
   "type": "EVENT_AI_CONTROL",
-  "actions": [
-    {
-      "type": "ACTION_MOVE",
-      "x": 0,
-      "y": 64,
-      "z": 10
-    }
-  ],
+  "action":     {
+    "type": "ACTION_MOVE",
+    "x": 0,
+    "y": 64,
+    "z": 10
+  },
   "plans": "我需要先移动到坐标 (0, 64, 10) 的位置，然后再决策下一步干什么。（简要地说明打算）"
 }
 ````

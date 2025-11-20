@@ -2,15 +2,13 @@ package org.ricey_yam.lynxmind.client.ai.message.event.player.sub;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.entity.player.PlayerEntity;
-import org.ricey_yam.lynxmind.client.ai.message.game_info.ui.SlotItemStack;
+import org.ricey_yam.lynxmind.client.utils.game_ext.item.SlotItemStack;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.PlayerEvent;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.PlayerEventType;
 import org.ricey_yam.lynxmind.client.baritone.status.BStatus;
 import org.ricey_yam.lynxmind.client.utils.game_ext.entity.PlayerUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ComplexContainerType;
-import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.TransformUtils;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.LSlotType;
 
@@ -39,8 +37,12 @@ public class PlayerStatusHeartBeatEvent extends PlayerEvent {
     private List<SlotItemStack> inventory_equipment;
 
     private BStatus current_baritone_task;
-    public PlayerStatusHeartBeatEvent(PlayerEntity player) {
+
+    private PlayerScanEntityEvent nearby_entities;
+
+    public PlayerStatusHeartBeatEvent() {
         setType(PlayerEventType.EVENT_PLAYER_STATUS_HEARTBEAT);
+        var player = getPlayer();
 
         this.health = player.getHealth();
         this.maxHealth = player.getMaxHealth();
@@ -59,6 +61,8 @@ public class PlayerStatusHeartBeatEvent extends PlayerEvent {
         this.inventory_inner =  PlayerUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_INNER,ComplexContainerType.PLAYER_INFO);
         this.inventory_equipment = PlayerUtils.getClientPlayerInventoryItems(LSlotType.INVENTORY_EQUIPMENT,ComplexContainerType.PLAYER_INFO);
 
-        current_baritone_task = BaritoneManager.getCurrentBStatus();
+        this.current_baritone_task = BaritoneManager.getCurrentBStatus();
+
+        this.nearby_entities = new PlayerScanEntityEvent(15,List.of());
     }
 }

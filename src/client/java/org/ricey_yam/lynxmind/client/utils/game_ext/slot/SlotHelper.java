@@ -105,7 +105,7 @@ public class SlotHelper {
         if (player == null) return false;
         for (int slotIndex = 0; slotIndex < 9; slotIndex++) {
             var stack = player.getInventory().getStack(slotIndex);
-            if (!stack.isEmpty() && ItemUtils.getItemName(stack).equals(itemId)) {
+            if (!stack.isEmpty() && ItemUtils.getItemID(stack).equals(itemId)) {
                 player.getInventory().selectedSlot = slotIndex;
                 return true;
             }
