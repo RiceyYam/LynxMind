@@ -6,7 +6,7 @@ import org.ricey_yam.lynxmind.client.LynxMindClient;
 import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
-import org.ricey_yam.lynxmind.client.task.temp.baritone.BCollectionTask;
+import org.ricey_yam.lynxmind.client.task.temp.baritone.BBlockCollectionTask;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class PlayerCollectBlockAction extends Action {
                 LynxMindClient.sendModMessage("§c错误: 方块ID列表不能为空！");
                 return false;
             }
-            var baritoneCollectionTask = new BCollectionTask(this.needed_blocks,this);
+            var baritoneCollectionTask = new BBlockCollectionTask(this.needed_blocks,this);
             LynxMindEndTickEventManager.registerTask(baritoneCollectionTask);
             return super.invoke();
         }

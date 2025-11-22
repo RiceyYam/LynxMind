@@ -10,7 +10,6 @@ import org.ricey_yam.lynxmind.client.ai.message.event.ai.AIEvent;
 @Getter
 @Setter
 public class AIStartEvent extends AIEvent {
-
     @Override
     public void onReceive() {
         AIServiceManager.isServiceActive = true;

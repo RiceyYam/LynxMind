@@ -22,10 +22,7 @@ import org.ricey_yam.lynxmind.client.utils.game_ext.slot.LSlot;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.LSlotType;
 import org.ricey_yam.lynxmind.client.utils.game_ext.slot.SlotHelper;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -37,25 +34,40 @@ public class BKillauraTask extends BTask{
     }
     private KillauraState killauraState;
 
+    /// 攻击范围
     private float attackRange;
-    private List<UUID> attackingTarget = new ArrayList<>();
+    /// 反击对象
+    private List<UUID> strikeBackTargetList = new ArrayList<>();
+    /// 必杀榜
+    private List<UUID> mustKillTargetList = new ArrayList<>();
+    /// 当前攻击目标
     private LivingEntity currentTarget;
 
     private float hitTickTimer;
+    /// 攻击间隔(取决于当前武器)
     private float hitTickDelay;
 
+    /// 最佳武器格子
     private LSlot bestWeaponLSlot;
+    /// 最佳武器物品ID
     private String bestWeaponID;
+    /// 武器是否在快捷栏
     private boolean weaponInHotbar;
+
+    /// 将武器转移到快捷栏的UTask
     private List<UTask> switchingToWeaponUTasks = new ArrayList<>();
     private UTask performingUTask;
 
+    public BKillauraTask(float attackRange,List<UUID> mustKillTargetList){
+        this(attackRange);
+        this.mustKillTargetList = mustKillTargetList;
+    }
     public BKillauraTask(float attackRange){
         super();
         this.weight = 2;
         this.hitTickDelay = 5;
-        attackingTarget.clear();
-        killauraState = KillauraState.ATTACKING;
+        strikeBackTargetList.clear();
+        killauraState = KillauraState.PATHING_TO_TARGET;
         setTaskType(BTaskType.KILLAURA);
         this.attackRange = attackRange;
     }
@@ -66,6 +78,7 @@ public class BKillauraTask extends BTask{
     @Override
     public void tick() {
         tickTimer++;
+        hitTickTimer++;
         switch(killauraState){
             /// 寻路到目标附近
             case PATHING_TO_TARGET -> pathingToTargetTick();
@@ -80,7 +93,8 @@ public class BKillauraTask extends BTask{
     @Override
     public void stop(String cancelReason) {
         this.currentTaskState = TaskState.FINISHED;
-        attackingTarget.clear();
+        strikeBackTargetList.clear();
+        mustKillTargetList.clear();
         attackRange = 0;
     }
     @Override
@@ -113,25 +127,49 @@ public class BKillauraTask extends BTask{
         }
     }
     private void pathingToTargetTick(){
-        if(attackingTarget == null || attackingTarget.isEmpty() || baritone == null || baritone.getLookBehavior() == null) return;
-        var nearbyEnemies = EntityUtils.scanAllEntity(getPlayer(), LivingEntity.class, 6, e -> e.distanceTo(getPlayer()) <= 6 && attackingTarget.contains(e.getUuid()));
+        if(baritone == null || baritone.getLookBehavior() == null) return;
+        /// 获取反击对象
+        var nearbyEnemies = EntityUtils.scanAllEntity(getPlayer(), LivingEntity.class,50, e -> (strikeBackTargetList != null && strikeBackTargetList.contains(e.getUuid())) || (mustKillTargetList != null && mustKillTargetList.contains(e.getUuid())));
+        if(nearbyEnemies == null) nearbyEnemies = new ArrayList<>();
+
+        /// 没有反击对象 获取必杀目标
+        if(!mustKillTargetList.isEmpty() && nearbyEnemies.isEmpty()){
+            for (int i = 0; i < mustKillTargetList.size(); i++) {
+                var uuid = mustKillTargetList.get(i);
+                var entity = EntityUtils.getEntityByUUID(uuid);
+
+                if (entity != null && entity.getHealth() > 0) {
+                    nearbyEnemies.add(entity);
+                }
+                else {
+                    mustKillTargetList.remove(i);
+                    i--;
+                }
+            }
+        }
+
         currentTarget = nearbyEnemies.stream()
                 .min(Comparator.comparingDouble(e -> e.distanceTo(getPlayer())))
                 .orElse(null);
+
         var goalProcess = baritone.getCustomGoalProcess();
+
         if(isNearbyTarget()){
             goalProcess.setGoal(null);
             baritone.getPathingBehavior().cancelEverything();
             this.killauraState = KillauraState.ATTACKING;
         }
-        else if(currentTarget != null && goalProcess != null && !goalProcess.isActive()){
-            var targetGoal = new GoalNear(currentTarget.getBlockPos(), (int) attackRange);
+        else if(!targetDied() && goalProcess != null){
+            var targetGoal = new GoalNear(currentTarget.getBlockPos(), 2);
             goalProcess.setGoalAndPath(targetGoal);
+        }
+        else if(currentTarget == null) {
+            //System.out.println("No nearby enemies found");
         }
     }
     private void attackingTick(){
         if(!isNearbyTarget()){
-            this.killauraState = KillauraState.PATHING_TO_TARGET;
+            transitionToPathingToTarget();
             return;
         }
 
@@ -143,14 +181,12 @@ public class BKillauraTask extends BTask{
 
         var options = ClientUtils.getOptions();
         if(options == null) return;
-        resetAttackingButton();
 
         if(!holdingBestWeapon()){
             transitionToSwitchingToWeapon();
             return;
         }
-        hitTickTimer++;
-        if(currentTarget != null){
+        if(!targetDied()){
             if(hitTickTimer >= hitTickDelay){
                 ClientUtils.getController().attackEntity(getPlayer(), currentTarget);
                 getPlayer().swingHand(Hand.MAIN_HAND);
@@ -160,7 +196,6 @@ public class BKillauraTask extends BTask{
         else transitionToPathingToTarget();
     }
     private void switchingToWeaponTick(){
-        resetAttackingButton();
         if(holdingBestWeapon()){
             transitionToAttacking();
             return;
@@ -197,13 +232,6 @@ public class BKillauraTask extends BTask{
             ContainerHelper.closeContainer();
             SlotHelper.switchToHotbarItem(bestWeaponID);
         }
-    }
-
-    /// 抬起攻击键
-    private void resetAttackingButton(){
-        var options = ClientUtils.getOptions();
-        if(options == null) return;
-        options.attackKey.setPressed(false);
     }
 
     /// 重置攻击间隔
@@ -244,6 +272,10 @@ public class BKillauraTask extends BTask{
     /// 是否在攻击范围内
     private boolean isNearbyTarget(){
         if(currentTarget == null) return false;
-        return getPlayer().distanceTo(currentTarget) <= attackRange;
+        return getPlayer().distanceTo(currentTarget) <= 3f;
+    }
+
+    private boolean targetDied(){
+        return currentTarget == null || currentTarget.getHealth() <= 0;
     }
 }

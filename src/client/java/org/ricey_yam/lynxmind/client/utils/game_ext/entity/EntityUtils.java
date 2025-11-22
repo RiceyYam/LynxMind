@@ -8,9 +8,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import org.ricey_yam.lynxmind.client.utils.game_ext.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public class EntityUtils {
@@ -49,8 +51,8 @@ public class EntityUtils {
         return resultList;
     }
 
-    public static <T extends Entity> T findNearestEntity(LivingEntity entity,Class<T> targetEntityClass,int boxSize){
-        var targets = scanAllEntity(entity,targetEntityClass,boxSize ,e -> true);
+    public static <T extends Entity> T findNearestEntity(LivingEntity entity,Class<T> targetEntityClass,int boxSize,Predicate<? super T> predicate){
+        var targets = scanAllEntity(entity,targetEntityClass,boxSize ,predicate);
         if(targets.isEmpty()) return null;
         var nearestEntity = targets.get(0);
         float minR = boxSize * 2;
@@ -62,10 +64,24 @@ public class EntityUtils {
         }
         return nearestEntity;
     }
+    public static <T extends Entity> T findNearestEntity(LivingEntity entity,Class<T> targetEntityClass,int boxSize){
+        return findNearestEntity(entity,targetEntityClass,boxSize,e -> true);
+    }
 
     public static String getEntityID(Entity entity){
         if(entity == null) return null;
         var i = Registries.ENTITY_TYPE.getId(entity.getType());
         return i.toString();
+    }
+
+    public static LivingEntity getEntityByUUID(UUID uuid){
+        var world = ClientUtils.getWorld();
+        if(world == null) return null;
+        for (var entity : world.getEntitiesByClass(LivingEntity.class, Box.from(Vec3d.ZERO).expand(30000), e -> true)) {
+            if (entity.getUuid().equals(uuid)) {
+                return entity;
+            }
+        }
+        return null;
     }
 }

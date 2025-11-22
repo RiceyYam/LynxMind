@@ -6,9 +6,8 @@ import org.ricey_yam.lynxmind.client.task.IAbsoluteTask;
 import org.ricey_yam.lynxmind.client.task.ICoexistingTask;
 import org.ricey_yam.lynxmind.client.task.Task;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -73,17 +72,14 @@ public class LynxMindEndTickEvent<T extends Task<U>,U> {
     }
 
     private void absoluteEventTick(){
-        T highestWeightTask = taskList
-                .stream()
-                .max(Comparator.comparingDouble(t -> t instanceof IAbsoluteTask iAbsoluteTask ? iAbsoluteTask.getWeight() : 0))
-                .orElse(null);
+        var highestWeightTasks = findHighestWeightTasks();
 
-        if(highestWeightTask != null){
+        if(highestWeightTasks != null && !highestWeightTasks.isEmpty()) {
             for (int i = 0; i < taskList.size(); i++) {
                 var task = taskList.get(i);
                 if(task == null) continue;
                 if(!(task instanceof IAbsoluteTask)) continue;
-                if(task == highestWeightTask){
+                if(highestWeightTasks.contains(task)){
                     if (task.getCurrentTaskState() == Task.TaskState.IDLE) {
                         task.tick();
                     }
@@ -108,5 +104,16 @@ public class LynxMindEndTickEvent<T extends Task<U>,U> {
                 task.tick();
             }
         }
+    }
+    private List<T> findHighestWeightTasks() {
+        Map<Double, List<T>> tasksByWeight = taskList.stream()
+                .collect(Collectors.groupingBy(
+                        task -> task instanceof IAbsoluteTask ? ((IAbsoluteTask) task).getWeight() : 0.0
+                ));
+        Optional<Double> maxWeightOptional = tasksByWeight.keySet().stream()
+                .max(Comparator.naturalOrder());
+        return maxWeightOptional
+                .map(tasksByWeight::get)
+                .orElse(List.of());
     }
 }

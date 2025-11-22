@@ -113,15 +113,7 @@ public class BCraftingTask extends BTask {
         baritone.getPathingBehavior().cancelEverything();
 
         /// 发送任务停止事件给AI
-        if(stopReason != null && !stopReason.isEmpty() && AIServiceManager.isServiceActive && AIServiceManager.isTaskActive() && linkedAction != null){
-            if(linkedAction instanceof PlayerCraftingAction createAction){
-                createAction.setCraft_failed(craft_failed);
-                createAction.setCraft_success(craft_success);
-            }
-            var bTaskStopEvent = new PlayerBaritoneTaskStop(linkedAction,stopReason);
-            var serialized = LynxJsonHandler.serialize(bTaskStopEvent);
-            Objects.requireNonNull(AIServiceManager.sendAndReceiveReplyAsync(serialized)).whenComplete((reply, error) -> ChatManager.handleAIReply(reply));
-        }
+        sendBTaskStopMessage(stopReason);
 
         System.out.println("制作任务已停止：" + stopReason);
     }
@@ -131,6 +123,19 @@ public class BCraftingTask extends BTask {
         baritone.getCustomGoalProcess().setGoal(null);
         baritone.getPathingBehavior().cancelEverything();
         ContainerHelper.closeContainer();
+    }
+
+    @Override
+    protected void sendBTaskStopMessage(String stopReason) {
+        if(stopReason != null && !stopReason.isEmpty() && AIServiceManager.isServiceActive && AIServiceManager.isTaskActive() && linkedAction != null){
+            if(linkedAction instanceof PlayerCraftingAction createAction){
+                createAction.setCraft_failed(craft_failed);
+                createAction.setCraft_success(craft_success);
+            }
+            var bTaskStopEvent = new PlayerBaritoneTaskStop(linkedAction,stopReason);
+            var serialized = LynxJsonHandler.serialize(bTaskStopEvent);
+            Objects.requireNonNull(AIServiceManager.sendAndReceiveReplyAsync(serialized)).whenComplete((reply, error) -> ChatManager.handleAIReply(reply));
+        }
     }
 
     private void transitionToFindingCraftingWay(){

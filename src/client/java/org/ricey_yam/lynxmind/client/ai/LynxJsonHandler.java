@@ -3,10 +3,7 @@ package org.ricey_yam.lynxmind.client.ai;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCollectBlockAction;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCraftingAction;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerMoveAction;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.StopBaritoneAction;
+import org.ricey_yam.lynxmind.client.ai.message.action.sub.*;
 import org.ricey_yam.lynxmind.client.ai.message.event.ai.sub.*;
 import org.ricey_yam.lynxmind.client.utils.format.JsonExt;
 
@@ -70,11 +67,20 @@ public class LynxJsonHandler {
                         case "GET_STATUS" -> {
                             return new TypeToken<AIGetStatusEvent>(){};
                         }
-                        case "NEARBY_BLOCK" -> {
+                        case "GET_NEARBY_BLOCK" -> {
                             return new TypeToken<AIGetNearbyBlockEvent>(){};
                         }
-                        case "NEARBY_ENTITY" -> {
+                        case "GET_NEARBY_ENTITY" -> {
                             return new TypeToken<AIGetNearbyEntityEvent>(){};
+                        }
+                        case "ADD_STRIKE_BACK_TARGET" -> {
+                            return new TypeToken<AIAddStrikeBackTargetEvent>(){};
+                        }
+                        case "REMOVE_STRIKE_BACK_TARGET" -> {
+                            return new TypeToken<AIRemoveStrikeBackTargetEvent>(){};
+                        }
+                        case "GET_STRIKE_BACK_TARGET_LIST" -> {
+                            return new TypeToken<AIGetStrikeBackTargetListEvent>(){};
                         }
                     }
                 }
@@ -99,7 +105,12 @@ public class LynxJsonHandler {
                 case "CRAFTING" ->{
                     return new TypeToken<PlayerCraftingAction>(){};
                 }
-                //todo more action
+                case "COLLECT_ENTITY_LOOT" -> {
+                    return new TypeToken<PlayerCollectEntityLootAction>(){};
+                }
+                case "MURDER" -> {
+                    return new TypeToken<PlayerMurderAction>(){};
+                }
             }
         }
 

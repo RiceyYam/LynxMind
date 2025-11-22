@@ -4,14 +4,8 @@ import baritone.api.pathing.goals.GoalBlock;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.util.math.BlockPos;
-import org.ricey_yam.lynxmind.client.ai.AIServiceManager;
-import org.ricey_yam.lynxmind.client.ai.ChatManager;
-import org.ricey_yam.lynxmind.client.ai.LynxJsonHandler;
 import org.ricey_yam.lynxmind.client.ai.message.action.Action;
-import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerBaritoneTaskStop;
 import org.ricey_yam.lynxmind.client.utils.game_ext.interaction.ContainerHelper;
-
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -65,11 +59,7 @@ public class BPathingTask extends BTask {
         baritone.getPathingBehavior().cancelEverything();
 
         /// 发送任务停止事件给AI
-        if(stopReason != null && !stopReason.isEmpty() && AIServiceManager.isServiceActive && AIServiceManager.isTaskActive() && linkedAction != null){
-            var bTaskStopEvent = new PlayerBaritoneTaskStop(linkedAction,stopReason);
-            var serialized = LynxJsonHandler.serialize(bTaskStopEvent);
-            Objects.requireNonNull(AIServiceManager.sendAndReceiveReplyAsync(serialized)).whenComplete((reply, error) -> ChatManager.handleAIReply(reply));
-        }
+        sendBTaskStopMessage(stopReason);
 
         currentTaskState = TaskState.FINISHED;
 

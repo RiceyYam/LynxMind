@@ -117,6 +117,46 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
   ]
 }
 ```
+#### 2.1.8 添加反击目标事件 (`EVENT_AI_ADD_STRIKE_BACK_TARGET`)
+*   **作用**: AI 主动将某个实体添加到反击列表(使其靠近玩家时会被自动Killaura攻击)
+*   **何时使用**: AI 想要让玩家对某些中立生物发起反击
+*   **包含内容**:
+- `UUID_str_list` 需要添加的UUID列表
+*   **示例**:
+```json
+{
+  "type": "EVENT_AI_ADD_STRIKE_BACK_TARGET",
+  "UUID_str_list": [
+    "某只铁傀儡的UUID",
+    "某只中立生物的UUID"
+  ]
+}
+```
+#### 2.1.9 删除反击目标事件 (`EVENT_AI_REMOVE_STRIKE_BACK_TARGET`)
+*   **作用**: AI 主动将某个实体从反击列表移除(使其靠近玩家时不再被自动Killaura攻击)
+*   **何时使用**: AI 不再想让某些中立生物受到自动Killaura的波及
+*   **包含内容**:
+- `UUID_str_list` 需要移除的UUID列表
+*   **示例**:
+```json
+{
+  "type": "EVENT_AI_REMOVE_STRIKE_BACK_TARGET",
+  "UUID_str_list": [
+    "某只铁傀儡的UUID",
+    "某只中立生物的UUID"
+  ]
+}
+```
+#### 2.1.10 查询反击目标事件 (`EVENT_AI_GET_STRIKE_BACK_TARGET_LIST`)
+*   **作用**: AI 主动向系统查询当前有那些中立生物被列入了反击目标名单(会被自动Killaura攻击)
+*   **何时使用**: AI 想要知道当前玩家的自动Killaura会对什么中立生物发起攻击
+*   **示例**:
+```json
+{
+  "type": "EVENT_AI_GET_STRIKE_BACK_TARGET_LIST",
+}
+```
+
 ### 2.2 系统 / 玩家发送的事件（AI 接收的事件）
 #### 2.2.1 玩家创建任务事件 (`EVENT_PLAYER_STATUS_CREATE_TASK`)
 - **作用**:
@@ -438,6 +478,7 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
         "id": "minecraft:zombie",
         "max_health": 20,
         "current_health": 16,
+        "UUID_str": "生物的UUID",
         "x": 124,
         "y": 102,
         "z": 551
@@ -446,6 +487,7 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
         "id": "minecraft:skeleton",
         "max_health": 20,
         "current_health": 20,
+        "UUID_str": "生物的UUID",
         "x": 128,
         "y": 102,
         "z": 550
@@ -548,6 +590,7 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
       "id": "minecraft:pig",
       "max_health": 10,
       "current_health": 8,
+      "UUID_str": "生物的UUID",
       "x": 10,
       "y": 102,
       "z": 66
@@ -556,6 +599,7 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
       "id": "minecraft:pig",
       "max_health": 10,
       "current_health": 9,
+      "UUID_str": "生物的UUID",
       "x": 11,
       "y": 100,
       "z": 65
@@ -563,6 +607,24 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
   ]
 }
 ```
+#### 2.2.7 玩家返回反击目标列表事件 (`EVENT_PLAYER_REPLY_STRIKE_BACK_TARGET_LIST`)
+- **作用**: 告诉AI玩家的自动Killaura会对哪些生物进行回击(检测UUID)(一般为`EVENT_AI_GET_STRIKE_BACK_TARGET_LIST`的返回结果)。
+- **系统何时发送**：
+    - AI发送`EVENT_AI_GET_STRIKE_BACK_TARGET_LIST`后
+- **包含信息**:
+    - `strike_back_target_list` 反击目标UUID列表
+- **示例:**
+
+```json
+{
+  "type": "EVENT_PLAYER_REPLY_STRIKE_BACK_TARGET_LIST",
+  "strike_back_target_list": [
+    "某只铁傀儡的UUID",
+    "某只中立生物的UUID"
+  ],
+}
+```
+
 ## 3. 支持的动作类型 (`Action`)
 名词解释`BTASK`:Baritone创建的工作（如寻路到某个位置/收集某些材料等）
 ### 3.2 停下 Baritone 的当前工作（停下全部`BTASK`）(`ACTION_STOP_BARITONE`)
@@ -640,6 +702,7 @@ LynxMind 项目的 JSON Schema 定义与事件规范。这份文档详细说明�
 }
 ```
 ## 4.特别注意！！
+- 你操控的玩家已经自动开启杀戮光环(Killaura),Killaura会让玩家攻击靠近自身的(以玩家为攻击目标/在反击名单内)生物.这说明你不用再操心旁边的野怪,你也可以手动添加你想要攻击的目标(UUID).
 - 关于物品标签：
     - `log` 对应任意类型的原木 如果你不知道周边情况且需要原木，**强烈建议**在`ACTION_COLLECT_BLOCK`传入.
 - 目前你操控的玩家是生存模式，你必须了解全部MC知识，确保某些方块需要特定工具才能被破坏并产生掉落物，以及，某些方块需要破坏特定的方块才能获得！

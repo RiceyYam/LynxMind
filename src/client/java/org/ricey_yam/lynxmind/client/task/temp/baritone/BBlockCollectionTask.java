@@ -40,7 +40,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class BCollectionTask extends BTask {
+public class BBlockCollectionTask extends BTask {
     private List<String> targetBlockIDList = new ArrayList<>();
     /// 当前目标方块位置
     private BlockPos currentTargetBlockPos;
@@ -72,10 +72,10 @@ public class BCollectionTask extends BTask {
         MINING_BLOCK,
     }
 
-    public BCollectionTask(List<ItemStackLite> neededItem, Action linkedAction) {
+    public BBlockCollectionTask(List<ItemStackLite> neededItem, Action linkedAction) {
         super();
         this.weight = 1;
-        this.taskType = BTaskType.COLLECTION;
+        this.taskType = BTaskType.BLOCK_COLLECTION;
         this.currentWorld = baritone.getPlayerContext().world();
         this.neededItem = neededItem;
         this.currentTaskState = TaskState.IDLE;
@@ -93,7 +93,7 @@ public class BCollectionTask extends BTask {
         nextBlock();
         blackList.clear();
         currentTaskState = TaskState.IDLE;
-        collectingState = CollectingState.MOVING_TO_BLOCK;
+        transitionToMovingToBlock();
         updateBlockTargetList();
     }
     @Override
@@ -153,11 +153,7 @@ public class BCollectionTask extends BTask {
         currentTaskState = TaskState.FINISHED;
 
         /// 发送任务停止事件给AI
-        if(stopReason != null && !stopReason.isEmpty() && AIServiceManager.isServiceActive && AIServiceManager.isTaskActive() && linkedAction != null){
-            var bTaskStopEvent = new PlayerBaritoneTaskStop(linkedAction,stopReason);
-            var serialized = LynxJsonHandler.serialize(bTaskStopEvent);
-            Objects.requireNonNull(AIServiceManager.sendAndReceiveReplyAsync(serialized)).whenComplete((reply, error) -> ChatManager.handleAIReply(reply));
-        }
+        sendBTaskStopMessage(stopReason);
 
         System.out.println("收集任务已停止：" + stopReason);
     }
@@ -391,7 +387,7 @@ public class BCollectionTask extends BTask {
                     miningBlockName = PlayerUtils.getSelectedBlockID();
                     miningBlockPos = PlayerUtils.getSelectedBlockPos();
                     var selectedBlockState = selectedBlock.getDefaultState();
-                    if(selectedBlockState != null && (holdItemStack == null || !holdItemStack.isSuitableFor(selectedBlockState)) && options.attackKey.isPressed()){
+                    if(selectedBlockState != null && !holdingBestTool(miningBlockPos) && options.attackKey.isPressed()){
                         switchToBestTool(miningBlockPos);
                     }
                 }

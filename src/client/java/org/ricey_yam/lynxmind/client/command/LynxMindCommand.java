@@ -1,5 +1,6 @@
 package org.ricey_yam.lynxmind.client.command;
 
+import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -13,17 +14,16 @@ import org.ricey_yam.lynxmind.client.LynxMindClient;
 import org.ricey_yam.lynxmind.client.ai.AIServiceManager;
 import org.ricey_yam.lynxmind.client.ai.ChatManager;
 import org.ricey_yam.lynxmind.client.ai.LynxJsonHandler;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCraftingAction;
+import org.ricey_yam.lynxmind.client.ai.message.action.sub.*;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerScanBlockEvent;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerScanEntityEvent;
 import org.ricey_yam.lynxmind.client.event.LynxMindEndTickEventManager;
 import org.ricey_yam.lynxmind.client.task.non_temp.lynx.LTaskType;
 import org.ricey_yam.lynxmind.client.task.non_temp.lynx.sub.LAutoStrikeBackTask;
+import org.ricey_yam.lynxmind.client.task.temp.baritone.BEntityCollectionTask;
 import org.ricey_yam.lynxmind.client.utils.game_ext.item.ItemStackLite;
 import org.ricey_yam.lynxmind.client.baritone.BaritoneManager;
 import org.ricey_yam.lynxmind.client.config.AIServiceConfig;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerCollectBlockAction;
-import org.ricey_yam.lynxmind.client.ai.message.action.sub.PlayerMoveAction;
 import org.ricey_yam.lynxmind.client.ai.message.event.player.sub.PlayerStatusHeartBeatEvent;
 
 import java.util.ArrayList;
@@ -72,6 +72,14 @@ public class LynxMindCommand {
                                         .then(CommandManager.argument("item_id", StringArgumentType.greedyString())
                                                 .executes(BaritoneExecutor::craft))
                                 )
+                        )
+                        .then(CommandManager.literal("kfc")
+                                .then(CommandManager.argument("kq_json", StringArgumentType.greedyString())
+                                        .executes(BaritoneExecutor::killingForCollection))
+                        )
+                        .then(CommandManager.literal("murder")
+                                .then(CommandManager.argument("uuids", StringArgumentType.greedyString())
+                                        .executes(BaritoneExecutor::murder))
                         )
                 )
 
@@ -239,6 +247,58 @@ public class LynxMindCommand {
                 return 0;
             }
         }
+        private static int killingForCollection(CommandContext<ServerCommandSource> context){
+            try {
+                var gson = new Gson();
+                var kqss = StringArgumentType.getString(context,"kq");
+                if (kqss == null || kqss.trim().isEmpty()) {
+                    LynxMindClient.sendModMessage("§c错误: 请指定JSON!");
+                    return 0;
+                }
+                var kq_list = Arrays.asList(kqss.trim().split("\\s+"));
+                if (kq_list.isEmpty()) {
+                    LynxMindClient.sendModMessage("§c错误: JSON列表不能为空！");
+                    return 0;
+                }
+                var kqs = new ArrayList<BEntityCollectionTask.EntityKillingQuota>();
+                for (int i = 0; i < kq_list.size(); i++) {
+                    var kq = kq_list.get(i);
+                    var newKQ = gson.fromJson(kq, BEntityCollectionTask.EntityKillingQuota.class);
+                    kqs.add(newKQ);
+                }
+
+                var newCollectLootAction = new PlayerCollectEntityLootAction(kqs);
+                newCollectLootAction.invoke();
+                return 1;
+            }
+            catch (Exception e) {
+                LynxMindClient.sendModMessage("§c执行制作命令时出错: " + e.getMessage());
+                e.printStackTrace();
+                return 0;
+            }
+        }
+        private static int murder(CommandContext<ServerCommandSource> context){
+            try {
+                var uuids = StringArgumentType.getString(context,"uuids");
+                if (uuids == null || uuids.trim().isEmpty()) {
+                    LynxMindClient.sendModMessage("§c错误: 请指定要击杀的目标!");
+                    return 0;
+                }
+                var uuid_list = Arrays.asList(uuids.trim().split("\\s+"));
+                if (uuid_list.isEmpty()) {
+                    LynxMindClient.sendModMessage("§c错误: UUID列表不能为空！");
+                    return 0;
+                }
+                var newMurderAction = new PlayerMurderAction(uuid_list);
+                newMurderAction.invoke();
+                return 1;
+            }
+            catch (Exception e) {
+                LynxMindClient.sendModMessage("§c执行制作命令时出错: " + e.getMessage());
+                e.printStackTrace();
+                return 0;
+            }
+        }
     }
 
     static class DebugExecutor{
@@ -291,9 +351,11 @@ public class LynxMindCommand {
                 var enabled = BoolArgumentType.getBool(context,"enabled");
                 if(enabled){
                     LynxMindEndTickEventManager.registerTask(new LAutoStrikeBackTask(5,10));
+                    LynxMindClient.sendModMessage("自动杀戮光环已开启!");
                 }
                 else{
                     LynxMindEndTickEventManager.unregisterTask(LTaskType.AUTO_STRIKE_BACK,"COMMAND");
+                    LynxMindClient.sendModMessage("自动杀戮光环已关闭!");
                 }
             }
             catch(Exception e){
